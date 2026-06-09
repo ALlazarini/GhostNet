@@ -185,3 +185,28 @@ def recovery_toposort(dependencies):
     if len(order) != len(in_degree):
         return []
     return order
+
+def knapsack_recovery(offline_nodes, costs, values, budget):
+    n = len(offline_nodes)
+    dp = [[0 for _ in range(budget + 1)] for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        for w in range(1, budget + 1):
+            if costs[i-1] <= w:
+                dp[i][w] = max(values[i-1] + dp[i-1][w - costs[i-1]], dp[i-1][w])
+            else:
+                dp[i][w] = dp[i-1][w]
+
+    res = dp[n][budget]
+    w = budget
+    selected_nodes = []
+
+    for i in range(n, 0, -1):
+        if res <= 0:
+            break
+        if res != dp[i-1][w]:
+            selected_nodes.append(offline_nodes[i-1])
+            res -= values[i-1]
+            w -= costs[i-1]
+
+    return dp[n][budget], selected_nodes
